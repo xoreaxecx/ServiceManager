@@ -11,10 +11,94 @@
         ResizeMode="CanMinimize">
     <Grid>
         <Grid.ColumnDefinitions>
-            
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            
+            <RowDefinition/>
         </Grid.RowDefinitions>
+
+        <ListView 
+            Name="Services"
+            Margin="5"
+            ItemsSource="{Binding Path=Services}">
+
+            <ListView.View>
+                <GridView>
+                    
+                    <GridViewColumn
+                        Header="Name"
+                        Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Name}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn
+                        Header="PID"
+                        Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=PID}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn
+                        Header="Description"
+                        Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Description}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn
+                        Header="Status"
+                        Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=StatusString}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn
+                        Header="Group"
+                        Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Group}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <GridViewColumn
+                        Header="Image path"
+                        Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Path}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem 
+                        Header="Start"
+                        Command="{Binding Path=GetServices}"/>
+                    <MenuItem Header="Stop"/>
+                    <MenuItem Header="Restart"/>
+                    <MenuItem Header="Refresh list"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
+        </ListView>
+
+        
     </Grid>
 </Window>
