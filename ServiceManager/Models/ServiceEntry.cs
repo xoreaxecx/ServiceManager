@@ -10,7 +10,7 @@ namespace ServiceManager.Models
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct ServiceEntry
     {
-        [MarshalAsAttribute(UnmanagedType.BStr)]
+        [MarshalAs(UnmanagedType.BStr)]
         public string Name;
         [MarshalAsAttribute(UnmanagedType.BStr)]
         public string Description;
