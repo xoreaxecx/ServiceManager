@@ -93,5 +93,18 @@ namespace ServiceManager.Models
                 }
             }
         }
+
+        public ServiceEntry ToServiceEntry()
+        {
+            return new ServiceEntry
+            {
+                Name = this.Name,
+                Description = this.Description,
+                Group = this.Group,
+                Path = this.Path,
+                PID = this.PID,
+                StatusString = this.StatusString
+            };
+        }
     }
 }

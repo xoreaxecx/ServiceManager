@@ -22,5 +22,18 @@ namespace ServiceManager.Models
         public string Path;
         [MarshalAsAttribute(UnmanagedType.BStr)]
         public string PID;
+
+        public ObservableServiceEntry ToObservableServiceEntry()
+        {
+            return new ObservableServiceEntry
+            {
+                Name = this.Name,
+                Description = this.Description,
+                Group = this.Group,
+                Path = this.Path,
+                PID = this.PID,
+                StatusString = this.StatusString
+            };
+        }
     }
 }
