@@ -20,7 +20,9 @@
         <ListView 
             Name="Services"
             Margin="5"
-            ItemsSource="{Binding Path=Services}">
+            ItemsSource="{Binding Path=Services}"
+            SelectedItem="{Binding Path=SelectedEntry}"
+            SelectedIndex="{Binding Path=SelectedEntryIndex}">
 
             <ListView.View>
                 <GridView>
@@ -91,14 +93,22 @@
                 <ContextMenu>
                     <MenuItem 
                         Header="Start"
-                        Command="{Binding Path=GetServices}"/>
-                    <MenuItem Header="Stop"/>
-                    <MenuItem Header="Restart"/>
-                    <MenuItem Header="Refresh list"/>
+                        Command="{Binding Path=StartServiceCommand}"
+                        IsEnabled="{Binding Path=IsStopped}"/>
+                    <MenuItem 
+                        Header="Stop"
+                        Command="{Binding Path=StopServiceCommand}"
+                        IsEnabled="{Binding Path=IsRunning}"/>
+                    <MenuItem 
+                        Header="Restart"
+                        Command="{Binding Path=RestartServiceCommand}"
+                        IsEnabled="{Binding Path=IsRunning}"/>
+                    <MenuItem 
+                        Header="Refresh list" 
+                        Command="{Binding Path=GetServicesCommand}"
+                        BorderBrush="Gray"/>
                 </ContextMenu>
             </ListView.ContextMenu>
         </ListView>
-
-        
     </Grid>
 </Window>
