@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.IO;
-using System.Windows.Threading;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Collections.ObjectModel;
 using ServiceManager.Models;
 using Microsoft.Win32.SafeHandles;
@@ -120,7 +115,7 @@ namespace ServiceManager.ViewModels
                 if (_getServices == null)
                 {
                     _getServices = new RelayCommand(
-                        param => GetServiceEntries());
+                        async param => await Task.Run(() => GetServiceEntries()));
                 }
                 return _getServices;
             }
@@ -134,7 +129,7 @@ namespace ServiceManager.ViewModels
                 if (_startService == null)
                 {
                     _startService = new RelayCommand(
-                        param => StartService());
+                        async param => await Task.Run(() => StartService()));
                 }
                 return _startService;
             }
@@ -148,7 +143,7 @@ namespace ServiceManager.ViewModels
                 if (_stopService == null)
                 {
                     _stopService = new RelayCommand(
-                        param => StopService());
+                        async param => await Task.Run(() => StopService()));
                 }
                 return _stopService;
             }
@@ -162,7 +157,7 @@ namespace ServiceManager.ViewModels
                 if (_restartService == null)
                 {
                     _restartService = new RelayCommand(
-                        param => RestartService());
+                        async param => await Task.Run(() => RestartService()));
                 }
                 return _restartService;
             }
@@ -173,31 +168,31 @@ namespace ServiceManager.ViewModels
 
         #region import
 
-        [DllImport(@"E:\Room\C++\CppLib\Debug\ServiceLib.dll", EntryPoint = "CallStartService", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"ServiceLib.dll", EntryPoint = "CallStartService", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         static unsafe extern bool CallStartService(
             [MarshalAs(UnmanagedType.LPStr)] string name, out IntPtr item);
 
-        [DllImport(@"E:\Room\C++\CppLib\Debug\ServiceLib.dll", EntryPoint = "CallStopService", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"ServiceLib.dll", EntryPoint = "CallStopService", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         static unsafe extern bool CallStopService(
             [MarshalAs(UnmanagedType.LPStr)] string name, out IntPtr item);
 
-        [DllImport(@"E:\Room\C++\CppLib\Debug\ServiceLib.dll", EntryPoint = "CallRestartService", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"ServiceLib.dll", EntryPoint = "CallRestartService", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         static unsafe extern bool CallRestartService(
             [MarshalAs(UnmanagedType.LPStr)] string name, out IntPtr item);
 
-        [DllImport(@"E:\Room\C++\CppLib\Debug\ServiceLib.dll", EntryPoint = "GenerateItems", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"ServiceLib.dll", EntryPoint = "GenerateItems", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         static unsafe extern bool GenerateItems(out ItemsSafeHandle itemsHandle,
             out IntPtr items, out int itemCount);
 
-        [DllImport(@"E:\Room\C++\CppLib\Debug\ServiceLib.dll", EntryPoint = "ReleaseItems", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"ServiceLib.dll", EntryPoint = "ReleaseItems", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         static unsafe extern bool ReleaseItems(IntPtr itemsHandle);
 
-        [DllImport(@"E:\Room\C++\CppLib\Debug\ServiceLib.dll", EntryPoint = "ReleaseEntry", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(@"ServiceLib.dll", EntryPoint = "ReleaseEntry", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         static unsafe extern bool ReleaseEntry(IntPtr itemsHandle);
 
@@ -227,72 +222,71 @@ namespace ServiceManager.ViewModels
             }
         }
 
-        public void GetServiceEntries()
+        private void UpdateStatus(IntPtr ptr)
         {
-            Services.Clear();
+            if (ptr != IntPtr.Zero)
+            {
+                ServiceEntry temp = (ServiceEntry)Marshal.PtrToStructure(ptr, typeof(ServiceEntry));
+                App.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                {
+                    Services[SelectedEntryIndex].PID = temp.PID;
+                    Services[SelectedEntryIndex].StatusString = temp.StatusString;
+                });
+            }
+        }
+
+        private void GetServiceEntries()
+        {
+            App.Current.Dispatcher.BeginInvoke((Action)delegate () { Services.Clear(); });
+            //Services.Clear();
 
             using (GenerateItemsWrapper(out IntPtr ptr, out int itemsCount))
             {
                 for (int i = 0; i < itemsCount; i++)
                 {
                     ServiceEntry temp = (ServiceEntry)Marshal.PtrToStructure(ptr, typeof(ServiceEntry));
-                    Services.Add(temp.ToObservableServiceEntry());
+                    App.Current.Dispatcher.BeginInvoke((Action)delegate ()
+                    {
+                        Services.Add(temp.ToObservableServiceEntry());
+                    }); 
                     ptr += Marshal.SizeOf(temp);
                 }
             }
         }
 
-        public void StartService()
+        private void StartService()
         {
             string name = Services[SelectedEntryIndex].Name;
             IntPtr ptr;
 
             CallStartService(name, out ptr);
-            if (ptr != IntPtr.Zero)
-            {
-                ServiceEntry temp = (ServiceEntry)Marshal.PtrToStructure(ptr, typeof(ServiceEntry));
-                Services[SelectedEntryIndex].PID = temp.PID;
-                Services[SelectedEntryIndex].StatusString = temp.StatusString;
-            }
-
+            UpdateStatus(ptr);
             ReleaseEntry(ptr);
         }
 
-        public void StopService()
+        private void StopService()
         {
             string name = Services[SelectedEntryIndex].Name;
             IntPtr ptr;
 
             CallStopService(name, out ptr);
-            if (ptr != IntPtr.Zero)
-            {
-                ServiceEntry temp = (ServiceEntry)Marshal.PtrToStructure(ptr, typeof(ServiceEntry));
-                Services[SelectedEntryIndex].PID = temp.PID;
-                Services[SelectedEntryIndex].StatusString = temp.StatusString;
-            }
-
+            UpdateStatus(ptr);
             ReleaseEntry(ptr);
         }
 
-        public void RestartService()
+        private void RestartService()
         {
             string name = Services[SelectedEntryIndex].Name;
             IntPtr ptr;
 
             CallRestartService(name, out ptr);
-            if (ptr != IntPtr.Zero)
-            {
-                ServiceEntry temp = (ServiceEntry)Marshal.PtrToStructure(ptr, typeof(ServiceEntry));
-                Services[SelectedEntryIndex].PID = temp.PID;
-                Services[SelectedEntryIndex].StatusString = temp.StatusString;
-            }
-
+            UpdateStatus(ptr);
             ReleaseEntry(ptr);
         }
 
         public MainVM()
         {
-            GetServiceEntries();
+            Task.Run(() => GetServiceEntries());
         }
     }
 }

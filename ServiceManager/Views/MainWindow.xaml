@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ServiceManager.ViewModels"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="Service Manager" 
-        Height="450" 
-        Width="800"
+        Height="600" 
+        Width="1100"
         ResizeMode="CanMinimize">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -26,10 +27,9 @@
 
             <ListView.View>
                 <GridView>
-                    
                     <GridViewColumn
                         Header="Name"
-                        Width="100">
+                        Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=Name}"/>
@@ -39,7 +39,7 @@
 
                     <GridViewColumn
                         Header="PID"
-                        Width="100">
+                        Width="50">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=PID}"/>
@@ -49,7 +49,7 @@
 
                     <GridViewColumn
                         Header="Description"
-                        Width="100">
+                        Width="250">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=Description}"/>
@@ -59,7 +59,7 @@
 
                     <GridViewColumn
                         Header="Status"
-                        Width="100">
+                        Width="75">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=StatusString}"/>
@@ -79,7 +79,7 @@
 
                     <GridViewColumn
                         Header="Image path"
-                        Width="100">
+                        Width="400">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=Path}"/>
@@ -95,14 +95,17 @@
                         Header="Start"
                         Command="{Binding Path=StartServiceCommand}"
                         IsEnabled="{Binding Path=IsStopped}"/>
+                    
                     <MenuItem 
                         Header="Stop"
                         Command="{Binding Path=StopServiceCommand}"
                         IsEnabled="{Binding Path=IsRunning}"/>
+                    
                     <MenuItem 
                         Header="Restart"
                         Command="{Binding Path=RestartServiceCommand}"
                         IsEnabled="{Binding Path=IsRunning}"/>
+                    
                     <MenuItem 
                         Header="Refresh list" 
                         Command="{Binding Path=GetServicesCommand}"
