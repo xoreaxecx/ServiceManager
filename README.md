@@ -1,5 +1,5 @@
 # ServiceManager
-C# WPF MVVM using unmanaged c++ dll[https://github.com/xoreaxecx/ServiceLib]
+C# WPF MVVM using unmanaged c++ [dll](https://github.com/xoreaxecx/ServiceLib)
 
 ### Application features:
 ---
