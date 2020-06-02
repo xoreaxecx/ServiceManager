@@ -11,6 +11,6 @@ C# WPF MVVM using [unmanaged c++ dll](https://github.com/xoreaxecx/ServiceLib)
 
 ---
 
-[alt text](https://github.com/xoreaxecx/ServiceManager/blob/master/pic.jpg)
+![alt text](https://github.com/xoreaxecx/ServiceManager/blob/master/pic.jpg)
 
 ---
