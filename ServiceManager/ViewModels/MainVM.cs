@@ -166,60 +166,15 @@ namespace ServiceManager.ViewModels
 
         #endregion
 
-        #region import
-
-        [DllImport(@"ServiceLib.dll", EntryPoint = "CallStartService", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        static unsafe extern bool CallStartService(
-            [MarshalAs(UnmanagedType.LPStr)] string name, out IntPtr item);
-
-        [DllImport(@"ServiceLib.dll", EntryPoint = "CallStopService", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        static unsafe extern bool CallStopService(
-            [MarshalAs(UnmanagedType.LPStr)] string name, out IntPtr item);
-
-        [DllImport(@"ServiceLib.dll", EntryPoint = "CallRestartService", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        static unsafe extern bool CallRestartService(
-            [MarshalAs(UnmanagedType.LPStr)] string name, out IntPtr item);
-
-        [DllImport(@"ServiceLib.dll", EntryPoint = "GenerateItems", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        static unsafe extern bool GenerateItems(out ItemsSafeHandle itemsHandle,
-            out IntPtr items, out int itemCount);
-
-        [DllImport(@"ServiceLib.dll", EntryPoint = "ReleaseItems", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        static unsafe extern bool ReleaseItems(IntPtr itemsHandle);
-
-        [DllImport(@"ServiceLib.dll", EntryPoint = "ReleaseEntry", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        static unsafe extern bool ReleaseEntry(IntPtr itemsHandle);
-
-        #endregion
-
         static unsafe ItemsSafeHandle GenerateItemsWrapper(out IntPtr items, out int itemsCount)
         {
             ItemsSafeHandle itemsHandle;
 
-            if (!GenerateItems(out itemsHandle, out items, out itemsCount))
+            if (!ServiceControl.GenerateItems(out itemsHandle, out items, out itemsCount))
             {
                 throw new InvalidOperationException();
             }
             return itemsHandle;
-        }
-
-        class ItemsSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
-        {
-            public ItemsSafeHandle()
-                : base(true)
-            {
-            }
-
-            protected override bool ReleaseHandle()
-            {
-                return ReleaseItems(handle);
-            }
         }
 
         private void UpdateStatus(IntPtr ptr)
@@ -238,7 +193,6 @@ namespace ServiceManager.ViewModels
         private void GetServiceEntries()
         {
             App.Current.Dispatcher.BeginInvoke((Action)delegate () { Services.Clear(); });
-            //Services.Clear();
 
             using (GenerateItemsWrapper(out IntPtr ptr, out int itemsCount))
             {
@@ -259,9 +213,9 @@ namespace ServiceManager.ViewModels
             string name = Services[SelectedEntryIndex].Name;
             IntPtr ptr;
 
-            CallStartService(name, out ptr);
+            ServiceControl.CallStartService(name, out ptr);
             UpdateStatus(ptr);
-            ReleaseEntry(ptr);
+            ServiceControl.ReleaseEntry(ptr);
         }
 
         private void StopService()
@@ -269,9 +223,9 @@ namespace ServiceManager.ViewModels
             string name = Services[SelectedEntryIndex].Name;
             IntPtr ptr;
 
-            CallStopService(name, out ptr);
+            ServiceControl.CallStopService(name, out ptr);
             UpdateStatus(ptr);
-            ReleaseEntry(ptr);
+            ServiceControl.ReleaseEntry(ptr);
         }
 
         private void RestartService()
@@ -279,9 +233,9 @@ namespace ServiceManager.ViewModels
             string name = Services[SelectedEntryIndex].Name;
             IntPtr ptr;
 
-            CallRestartService(name, out ptr);
+            ServiceControl.CallRestartService(name, out ptr);
             UpdateStatus(ptr);
-            ReleaseEntry(ptr);
+            ServiceControl.ReleaseEntry(ptr);
         }
 
         public MainVM()
